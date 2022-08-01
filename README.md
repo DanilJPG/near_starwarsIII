@@ -208,6 +208,8 @@ wget https://s3-us-west-1.amazonaws.com/build.nearprotocol.com/nearcore-deploy/s
 ```
 ![image](https://user-images.githubusercontent.com/57448493/182026311-ac58eef7-b1f8-48b6-9a9f-0dd380f77de4.png)
 
+Вообще советую не здаваться,у меня получилось привязать с раза 20го, так что пробуйте
+
 #### Проверьте validator_key.json
  Выполните следующую команду:
 ```
@@ -315,11 +317,12 @@ NEAR использует фабрику пула ставок с контрак
 
 #### Развертывем пул ставок командой
 
-### Важно! заменяем <pool id>, <MONIKER> и <ACCOUNT_ID>. Вместо <public key> вставляем ключ из файла validator_key.json
+### Важно! заменяем `<pool id>` , `<MONIKER>` и `<ACCOUNT_ID>` . Вместо `<public key>` вставляем ключ из файла validator_key.json
 ```
 near call factory.shardnet.near create_staking_pool '{"staking_pool_id": "<pool id>", "owner_id": "<accountId>", "stake_public_key": "<public key>", "reward_fee_fraction": {"numerator": 5, "denominator": 100}, "code_hash":"DD428g9eqLL8fWUxv8QSpVFzyHi1Qd16P8ephYCTmMSZ"}' --accountId="<accountId>" --amount=30 --gas=300000000000000
 ```
 ### Теперь можем застейкать еще токенов. В моем случае 30(минимум)
+#### Должно быть примерно так
 ```
 NEAR_ENV=shardnet near call $POOL deposit_and_stake --amount 30 --accountId $ACCOUNT_ID --gas=300000000000000
 ```
