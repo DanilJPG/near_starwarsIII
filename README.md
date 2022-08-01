@@ -78,7 +78,7 @@ echo 'export NEAR_ENV=shardnet' >> ~/.bashrc
 echo 'export NEAR_ENV=shardnet' >> ~/.bash_profile
 source $HOME/.bash_profile
 ```
-### Можно проверить корректную работу Near-CLI выполнив:
+#### Можно проверить корректную работу Near-CLI выполнив:
 #### Руководство по командам CLI РЯДОМ:
 #### Предложения
 #### Предложение от проверяющего указывает, что он хотел бы войти в набор проверяющих, для того, чтобы предложение было принято, оно должно соответствовать минимальной цене места.
@@ -315,7 +315,7 @@ NEAR использует фабрику пула ставок с контрак
 
 #### Развертывем пул ставок командой
 
-### Важно! заменяем <MONIKER> и <ACCOUNT_ID>. Вместо <public key> вставляем ключ из файла validator_key.json
+### Важно! заменяем <pool id>, <MONIKER> и <ACCOUNT_ID>. Вместо <public key> вставляем ключ из файла validator_key.json
 ```
 near call factory.shardnet.near create_staking_pool '{"staking_pool_id": "<pool id>", "owner_id": "<accountId>", "stake_public_key": "<public key>", "reward_fee_fraction": {"numerator": 5, "denominator": 100}, "code_hash":"DD428g9eqLL8fWUxv8QSpVFzyHi1Qd16P8ephYCTmMSZ"}' --accountId="<accountId>" --amount=30 --gas=300000000000000
 ```
@@ -323,7 +323,7 @@ near call factory.shardnet.near create_staking_pool '{"staking_pool_id": "<pool 
 ```
 NEAR_ENV=shardnet near call $POOL deposit_and_stake --amount 30 --accountId $ACCOUNT_ID --gas=300000000000000
 ```
-![image](https://user-images.githubusercontent.com/57448493/182043080-2bbd31da-37a3-40f6-9ffc-6e35280a4864.png)
+![image](https://user-images.githubusercontent.com/57448493/182249593-d65e712f-0da0-47ae-a6ea-97d32e5994e0.png)
 
 #### Мониторинг 
 Заходим по ссылке и ищем нашего валидоатор и проверяем количество застейканных монет:
