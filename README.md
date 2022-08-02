@@ -374,3 +374,138 @@ https://explorer.shardnet.near.org/nodes/validators
 ![image](https://user-images.githubusercontent.com/57448493/182044145-8a5c91a3-b8d4-4f64-8de0-63683432b5d1.png)
 
 
+Уведомление по электронной почте может сделать поддержание валидатора в рабочем состоянии более удобным. Станьте валидатором, подтверждающим транзакции в testnet, и получите >95% времени работы.
+
+Файлы журналов
+Лог-файл хранится либо в каталоге `~/.nearup/logs`, либо в `systemd`, в зависимости от вашей настройки.
+
+Команда systemd:
+```
+journalctl -n 100 -f -u neard | ccze -A
+```
+Пример файла журнала:
+
+Валидатор | 1 валидатор
+```
+INFO stats: #85079829 H1GUabkB7TW2K2yhZqZ7G47gnpS7ESqicDMNyb9EE6tf Validator 73 validators 30 peers ⬇ 506.1kiB/s ⬆ 428.3kiB/s 1.20 bps 62.08 Tgas/s CPU: 23%, память: 7.4 GiB
+```
+ Надпись "Validator" указывает на то, что вы являетесь активным валидатором.
+73 валидатора: Всего 73 валидатора в сети
+30 peers: В настоящее время у вас 30 peers. Для достижения консенсуса и начала валидации вам необходимо как минимум 3 peers.
+#46199418: блок - Посмотрите, чтобы убедиться, что блоки движутся
+
+#### RPC
+Любой узел в сети предлагает услуги RPC на порту 3030, если порт открыт в брандмауэре узла. NEAR-CLI использует вызовы RPC за сценой. Обычно RPC используется для проверки статистики валидатора, версии узла и просмотра доли делегата, хотя его можно использовать для взаимодействия с блокчейном, счетами и контрактами в целом.
+
+Более подробно о многих командах и их использовании можно узнать здесь:
+
+https://docs.near.org/api/rpc/introduction
+
+Команда:
+```
+sudo apt install curl jq
+```
+Общие команды:
+#### Проверьте версию вашей ноды: Команда:
+```
+curl -s http://127.0.0.1:3030/status | jq .version
+```
+#### Проверьте делегаторов и кол: Команда:
+```
+near view <ваш пул>.factory.shardnet.near get_accounts '{"from_index": 0, "limit": 10}' --accountId <accountId>.shardnet.near
+```
+#### Проверить причину срабатывания валидатора:
+```
+curl -s -d '{"jsonrpc": "2.0", "method": "validators", "id": "dontcare", "params": [null]}'' -H 'Content-Type: application/json' 127.0.0.1:3030 | jq -c '.result.prev_epoch_kickout[] | select(.account_id | contains ("<POOL_ID>"))' | jq .reason
+```
+#### Блоки / Ожидается Команда:
+  ```
+curl -r -s -d '{"jsonrpc": "2.0", "method": "validators", "id": "dontcare", "params": [null]}'' -H 'Content-Type: application/json' 127.0.0.1:3030 | jq -c '.result.current_validators[] | select(.account_id | contains ("POOL_ID"))'
+ ```
+### Challange 6 (Создайте задачу cron на машине, на которой запущен валидатор узлов, которая позволяет автоматически пинговать сеть)
+Создайте новый файл в /home/root/scripts/ping.sh
+```
+#!/bin/sh
+# Ping вызывает информацию для обновления Proposal и добавляет в crontab
+
+mkdir logs
+mkdir scripts
+cat > /root/scripts/ping.sh
+
+export NEAR_ENV=shardnet
+export POOL=$POOL
+export ACCOUNT_ID=$ACCOUNT_ID
+export MONIKER=$MONIKER
+export LOGS=/root/logs
+
+echo "---" >> $LOGS/all.log
+date >> $LOGS/all.log
+near call $POOL ping '{}' --accountId $ACCOUNT_ID --gas=300000000000000 >> $LOGS/all.log
+near proposals | grep $MONIKER >> $LOGS/all.log
+near validators current | grep $MONIKER >> $LOGS/all.log
+near validators next | grep $MONIKER >> $LOGS/all.log
+```
+#### Создаем новый crontab, запускающий наш скрипт каждые 2 часа
+```
+crontab -e
+```
+#### Копируем команду и вставляем в файл
+![image](https://user-images.githubusercontent.com/57448493/182424720-df65d548-fd92-4354-8105-9262e1cac5a6.png)
+
+```
+0 */2 * * * sh /root/scripts/ping.sh
+```
+##### Перезапускаем cron
+```
+systemctl restart cron
+```
+Проверяем активен ли cron
+```
+systemctl status cron
+```
+![image](https://user-images.githubusercontent.com/57448493/182424987-885b5b5c-6f83-4faa-b338-ff2708fddf5f.png)
+
++ Через пару часов проверяем логи
+```
+cat /root/logs/all.log
+```
++ Для подтверждения задания отправляем в форму скриншот транзакций и ссылку на свой пул
+![image](https://user-images.githubusercontent.com/57448493/182425140-1e5841eb-4e54-4620-ac10-4cbe8c286bcc.png)
+
+### Challange 8 ( Разверните смарт-контракт на аккаунте владельца пула ставок)
+
+#### Обновляем Rust
+```
+curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
+source $HOME/.cargo/env
+```
+#### Добавляем набор wasm32-unknown-unknown
+```
+rustup target add wasm32-unknown-unknown
+```
+#### Клонируем репозиторий и компилируем смарт контракт
+```
+git clone https://github.com/zavodil/near-staking-pool-owner
+cd near-staking-pool-owner/contract
+```
+#### Составление смарт-контракта
+```
+rustup target add wasm32-unknown-unknown
+cargo build --target wasm32-unknown-unknown --release
+```
+#### Разворачиваем смарт контракт на своей учетной записи
+```
+NEAR_ENV=shardnet near deploy $ACCOUNT_ID --wasmFile target/wasm32-unknown-unknown/release/contract.wasm
+```
+![image](https://user-images.githubusercontent.com/57448493/182425992-2c8f7883-899f-41ad-a7e7-7219cbbea2e2.png)
+
+Создаем новый кошелек, на который будем отправлять часть доходов https://wallet.shardnet.near.org/. Сохраняем мнемонику в надежном месте.
+![image](https://user-images.githubusercontent.com/57448493/182426367-ace010f0-5abe-4888-831b-49c5434abb19.png)
+
+#### Инициализируйте смарт-контракт, подбирающий счета для разделения выручки.
+CONTRACT_ID=<OWNER_ID>.shardnet.near
+
+# Change numerator and denomitor to adjust the % for split.
+```
+NEAR_ENV=shardnet near call $CONTRACT_ID new '{"staking_pool_account_id": "<STAKINGPOOL_ID>.factory.shardnet.near", "owner_id":"<OWNER_ID>.shardnet.near", "reward_receivers": [["<SPLITED_ACCOUNT_ID_1>.shardnet.near", {"numerator": 3, "denominator":10}], ["<SPLITED_ACCOUNT_ID_2>.shardnet.near", {"numerator": 70, "denominator":100}]]}' --accountId $CONTRACT_ID
+```
