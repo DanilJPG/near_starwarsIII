@@ -505,7 +505,7 @@ NEAR_ENV=shardnet near deploy $ACCOUNT_ID --wasmFile target/wasm32-unknown-unkno
 #### Инициализируйте смарт-контракт, подбирающий счета для разделения выручки.
 CONTRACT_ID=<OWNER_ID>.shardnet.near
 
-# Change numerator and denomitor to adjust the % for split.
+# Измените числитель и знаменатель, чтобы скорректировать % для разделения..
 ```
 NEAR_ENV=shardnet near call $CONTRACT_ID new '{"staking_pool_account_id": "<STAKINGPOOL_ID>.factory.shardnet.near", "owner_id":"<OWNER_ID>.shardnet.near", "reward_receivers": [["<SPLITED_ACCOUNT_ID_1>.shardnet.near", {"numerator": 3, "denominator":10}], ["<SPLITED_ACCOUNT_ID_2>.shardnet.near", {"numerator": 70, "denominator":100}]]}' --accountId $CONTRACT_ID
 ```
