@@ -176,7 +176,7 @@ cargo build -p neard --release --features shardnet
 ./target/release/neard --home ~/.near init --chain-id shardnet --download-genesis
 ```
 
-![image](https://user-images.githubusercontent.com/57448493/182024492-eeab1132-013f-469f-a41f-b90be40879c6.png)
+![image](https://user-images.githubusercontent.com/57448493/183308533-b74f49e3-7146-4389-b9cb-4b78f8a8d4d6.png)
 
 #### Эта команда создаст структуру каталогов и создаст 'config.json' , 'node_key.json' , и 'genesis.json' в переданной вами сети.
 
@@ -208,7 +208,7 @@ cd ~/nearcore
 ./target/release/neard --home ~/.near run
 ```
 
-![image](https://user-images.githubusercontent.com/57448493/182025977-2ea06a3a-8c71-4718-9381-eb1e82ee368c.png)
+![image](https://user-images.githubusercontent.com/57448493/183308549-269fb5fd-3d10-44d4-a90c-85d0098273e5.png)
 
 + Теперь узел запущен, и вы можете видеть логи в консоли. Ваш узел должен находить `peers`, загружать `headers` до 100%, а затем загружать блоки.
 
@@ -231,8 +231,8 @@ near login
 ![Screenshot_2](https://user-images.githubusercontent.com/57448493/182026211-077f6e98-7c45-488e-b0a9-1a21ffb87ccd.png)
 
 3 – После предоставления разрешения вы увидите страницу, подобную этой, вернитесь в консоль
-![image](https://user-images.githubusercontent.com/57448493/182026231-5a6bbb0b-d962-43b2-978b-2d868a5a15f5.png)
-#### Должно быть так ![image](https://user-images.githubusercontent.com/57448493/182026277-f32d7a25-6254-47a8-ac89-793e9bf43a64.png)
+![image](https://user-images.githubusercontent.com/57448493/183308584-5c43cc0d-7cc6-4981-a727-79f1bf887038.png)
+#### Должно быть так ![image](https://user-images.githubusercontent.com/57448493/183308591-5250090d-c71b-497c-9d90-4117bbca204c.png)
 #### если возникла такая ошибка, попробуйте сделать снепшот genesis.json, командой 
 ```
 cd ~/.near
@@ -240,7 +240,7 @@ wget https://s3-us-west-1.amazonaws.com/build.nearprotocol.com/nearcore-deploy/s
 ```
 ![image](https://user-images.githubusercontent.com/57448493/182026311-ac58eef7-b1f8-48b6-9a9f-0dd380f77de4.png)
 
-Вообще советую не сдаваться,у меня получилось привязать с раза 20го, так что пробуйте
+### Но лучше удалите ноду и повторите все заново,можно создать сначала сервисный файл,а потом уже подключаться к кошельк, самое главное следить за логами
 
 #### Проверьте validator_key.json
  Выполните следующую команду:
@@ -318,6 +318,8 @@ sudo systemctl reload neard
 ```
 journalctl -n 100 -f -u neard
 ```
+![image](https://user-images.githubusercontent.com/57448493/183308605-26e904e8-633a-4886-9a87-3e3bf885ccf0.png)
+
 #### Сделайте вывод журнала красивым шрифтом
 
 Команда:
@@ -338,7 +340,7 @@ journalctl -n 100 -f -u neard | ccze -A
 ```
 curl -s http://127.0.0.1:3030/status | jq .sync_info
 ```
-![image](https://user-images.githubusercontent.com/57448493/182026956-df2c1f76-c39a-42b1-ba9c-64ca3e749e88.png)
+![image](https://user-images.githubusercontent.com/57448493/183308691-79befeb8-955f-4e4f-b24e-70c2e368eaf9.png)
 
 2) `validator_key.json` должен быть на месте
 3)Контракт должен быть инициализирован с помощью `public_key` в `validator_key.json`
@@ -361,13 +363,14 @@ curl -s http://127.0.0.1:3030/status | jq .sync_info
 ```
 near call factory.shardnet.near create_staking_pool '{"staking_pool_id": "<pool id>", "owner_id": "<accountId>", "stake_public_key": "<public key>", "reward_fee_fraction": {"numerator": 5, "denominator": 100}, "code_hash":"DD428g9eqLL8fWUxv8QSpVFzyHi1Qd16P8ephYCTmMSZ"}' --accountId="<accountId>" --amount=30 --gas=300000000000000
 ```
+![image](https://user-images.githubusercontent.com/57448493/183308717-58fdcdac-929a-4e8a-b21a-6286ae591cb2.png)
+
 ### Теперь можем застейкать еще токенов. В моем случае 30(минимум)
 #### Должно быть примерно так
 ```
 NEAR_ENV=shardnet near call $POOL deposit_and_stake --amount 30 --accountId $ACCOUNT_ID --gas=300000000000000
 ```
-![image](https://user-images.githubusercontent.com/57448493/182249593-d65e712f-0da0-47ae-a6ea-97d32e5994e0.png)
-
+![image](https://user-images.githubusercontent.com/57448493/183308731-ecbf6abe-c2e3-43a7-95dc-0c052836e496.png)
 ### Challange 4
 #### Мониторинг
 Заходим по ссылке и ищем нашего валидоатор и проверяем количество застейканных монет:
