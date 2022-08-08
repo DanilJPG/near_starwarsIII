@@ -501,16 +501,14 @@ cargo build --target wasm32-unknown-unknown --release
 ```
 NEAR_ENV=shardnet near deploy $ACCOUNT_ID --wasmFile target/wasm32-unknown-unknown/release/contract.wasm
 ```
-![image](https://user-images.githubusercontent.com/57448493/182425992-2c8f7883-899f-41ad-a7e7-7219cbbea2e2.png)
 
-Создаем новый кошелек, на который будем отправлять часть доходов https://wallet.shardnet.near.org/. Сохраняем мнемонику в надежном месте.
-![image](https://user-images.githubusercontent.com/57448493/182426367-ace010f0-5abe-4888-831b-49c5434abb19.png)
+#### Создаем новый кошелек, на который будем отправлять часть доходов https://wallet.shardnet.near.org/. Сохраняем мнемонику в надежном месте.
 
 #### Инициализируйте смарт-контракт, подбирающий счета для разделения выручки.
 ```
 CONTRACT_ID=<OWNER_ID>.shardnet.near
 ```
-# Измените числитель и знаменатель, чтобы скорректировать % для разделения..
+#### Измените числитель и знаменатель, чтобы скорректировать % для разделения..
 ```
 NEAR_ENV=shardnet near call $CONTRACT_ID new '{"staking_pool_account_id": "<STAKINGPOOL_ID>.factory.shardnet.near", "owner_id":"<OWNER_ID>.shardnet.near", "reward_receivers": [["<SPLITED_ACCOUNT_ID_1>.shardnet.near", {"numerator": 3, "denominator":10}], ["<SPLITED_ACCOUNT_ID_2>.shardnet.near", {"numerator": 70, "denominator":100}]]}' --accountId $CONTRACT_ID
 ```
@@ -518,7 +516,7 @@ NEAR_ENV=shardnet near call $CONTRACT_ID new '{"staking_pool_account_id": "<STAK
 ```
 NEAR_ENV=shardnet near call $ACCOUNT_ID withdraw '{}' --accountId $ACCOUNT_ID --gas 200000000000000
 ```
-# {} выведет все токены из стейка. После успешной транзакции, застейкать токены заново
+{} выведет все токены из стейка. После успешной транзакции, застейкать токены заново
 Делаем скриншот полученного вывода и прикрепляем его в форму для сдачи заданий вместе с ссылкой на транзакцию.
 ![image](https://user-images.githubusercontent.com/57448493/183406351-f23a2bbd-7edb-4154-b160-e81039da8a55.png)
 ### Обновление
