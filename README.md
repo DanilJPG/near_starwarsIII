@@ -507,9 +507,65 @@ NEAR_ENV=shardnet near deploy $ACCOUNT_ID --wasmFile target/wasm32-unknown-unkno
 ![image](https://user-images.githubusercontent.com/57448493/182426367-ace010f0-5abe-4888-831b-49c5434abb19.png)
 
 #### Инициализируйте смарт-контракт, подбирающий счета для разделения выручки.
+```
 CONTRACT_ID=<OWNER_ID>.shardnet.near
-
+```
 # Измените числитель и знаменатель, чтобы скорректировать % для разделения..
 ```
 NEAR_ENV=shardnet near call $CONTRACT_ID new '{"staking_pool_account_id": "<STAKINGPOOL_ID>.factory.shardnet.near", "owner_id":"<OWNER_ID>.shardnet.near", "reward_receivers": [["<SPLITED_ACCOUNT_ID_1>.shardnet.near", {"numerator": 3, "denominator":10}], ["<SPLITED_ACCOUNT_ID_2>.shardnet.near", {"numerator": 70, "denominator":100}]]}' --accountId $CONTRACT_ID
+```
+#### По прошествии одной эпохи (8 часов) можно вывести токены, используя следующую команду
+```
+NEAR_ENV=shardnet near call $ACCOUNT_ID withdraw '{}' --accountId $ACCOUNT_ID --gas 200000000000000
+```
+# {} выведет все токены из стейка. После успешной транзакции, застейкать токены заново
+Делаем скриншот полученного вывода и прикрепляем его в форму для сдачи заданий вместе с ссылкой на транзакцию.
+![image](https://user-images.githubusercontent.com/57448493/183406351-f23a2bbd-7edb-4154-b160-e81039da8a55.png)
+### Обновление
+#### Останавливаем ноду
+```
+sudo systemctl stop neard
+```
+#### Подтягиваем новую версию и собираем бинарные файлы
+```
+export NEAR_ENV=shardnet
+echo 'export NEAR_ENV=shardnet' >> ~/.bashrc
+cd ~/nearcore
+git fetch
+git checkout 68bfa84ed1455f891032434d37ccad696e91e4f5
+cargo build -p neard --release --features shardnet
+```
+Скачиваем новый файл конфига
+```
+rm ~/.near/config.json 
+wget -O ~/.near/config.json https://s3-us-west-1.amazonaws.com/build.nearprotocol.com/nearcore-deploy/shardnet/config.json
+```
+Если при выполнении команды cargo возникает ошибка версии Rust
+![image](https://user-images.githubusercontent.com/57448493/183406749-6d1e0824-0e4f-4923-ac56-8caf6e945482.png)
+
+Обновляем раст и запускаем cargo заново
+```
+curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
+source $HOME/.cargo/env
+```
+```
+cargo build -p neard --release --features shardnet
+```
+Перезапускаем ноду и ждем окончания синхронизации
+```
+sudo systemctl start neard && journalctl -n 100 -f -u neard | ccze -A
+```
+В логах может быть куча сообщений с текстом "missing chunks". Проверяем логи командой, если блоки совпадают с эксплорером и увеличиваются, всё ок.
+```
+journalctl -n 100 -f -u neard|ccze -A| grep INFO
+```
+### Удалить ноду
+```
+sudo systemctl stop neard && \
+sudo systemctl disable neard && \
+rm /etc/systemd/system/neard.service && \
+sudo systemctl daemon-reload && \
+cd $HOME && \
+rm -rf .near nearcore && \
+rm -rf $(which neard)
 ```
